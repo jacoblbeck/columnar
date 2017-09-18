@@ -1,17 +1,17 @@
-SAMPLE VECTORS FOR COLUMNAR LAB
+BASE CODE and TEST VECTORS FOR COLUMNAR LAB
 -------------------------------
 
 INTRODUCTION
 ------------
 
 This archive contains sample input, keys, output and TWO testing
-scripts.  'test'.sh' performs encoding/decoding for each input and
-grid size combination and 'padtest.sh' tests padding only enciphering
+scripts.  `test.sh` performs encoding/decoding for each input and
+grid size combination and `padtest.sh` tests padding only enciphering
 (no transposition) for compatible encoders and decoders (see below).
 
 The lab manual for this exercise is at: https://docs.google.com/a/d.umn.edu/document/d/1EgddLiiNqvcsQPaAgbw-SBjkXdiiNFqBIzbv8KUMHLw/edit?usp=sharing
 
-The scripts test.sh and padtest.sh use the following directories:
+The scripts `test.sh` and `padtest.sh` use the following directories:
 
 Contents:  
 
@@ -26,13 +26,7 @@ Contents:
 INSTRUCTIONS FOR TEST.SH
 ------------------------
 
-Copy your encoder.c and decoder.c files into this directory. Run
-'./test.sh'. This will compile encoder.c and decoder.c and run all
-combinations of inputs and dimensions. Encoded data is written into
-ENCODED/ and compared against the correct version in correct/. Decoded
-data is written into DECODED/ and compared against the original input
-in input/.  Standard output and error for your programs are written to
-files in log/.
+Modify the `columnar.c` code in the directory. Run `./test.sh`. This will compile encoder.c and decoder.c and run all combinations of inputs and dimensions. Encoded data is written into `ENCODED/` and compared against the correct version in `correct/`. Decoded data is written into `DECODED/` and compared against the original input in `input/`.  If you'd like to see it (e.g., for debugging purposes), standard output and error for your programs are written to files in `log/`.
 
 Successes and failures are counted and results are printed at the end.
 
@@ -68,64 +62,36 @@ Options:
 PADDING CORRECTNESS
 -------------------
 
-To help you check whether you are performing padding correctly, the
-files in the directory padded/ are correctly padded examples of the
-input/ files, using the dimensions as specified in the filename. For
-example, the file 'padded/6.12_abe.jpg' is the padded version of the
-input file '12_abe.jpg' when padded using a dimension of 6 is used (a
-block size of 36 bytes). 
+To help you check whether you are performing padding correctly, the files in the directory padded/ are correctly padded examples of the input/ files, using the dimensions as specified in the filename. For example, the file 'padded/6.12_abe.jpg' is the padded version of the input file '12_abe.jpg' when padded using a dimension of 6 is used (a block size of 36 bytes). 
 
-To use these files, comment out your transposition code, or add a
-"padding only mode" to your encoder and decoder (so that you can
-enable/disable transposition on the command line -- see below for more
-information). Then, you can "encode" input without transposition,
-which you can compare to the correct examples in padded/. (You can
-also test the "unpadding" of data by decoding padded output with
-transposition disabled.)
+To use these files, comment out your transposition code, or add a "padding only mode" to your encoder and decoder (so that you can enable/disable transposition on the command line -- see below for more information). Then, you can "encode" input without transposition, which you can compare to the correct examples in padded/. (You can also test the "unpadding" of data by decoding padded output with transposition disabled.)
 
-In addition to examining files with cat, less, hexedit, or another
-editor, you can also use the program 'diff' to tell you if two files
-differ. Use it like this:
+In addition to examining files with cat, less, hexedit, or another editor, you can also use the program 'diff' to tell you if two files differ. Use it like this:
 
-diff file1 file2
+	diff file1 file2
 
-'diff' only prints differences between input files. Therefore, if the
-two files match, diff will print nothing.
+'diff' only prints differences between input files. Therefore, if the two files match, diff will print nothing.
 
-Another excellent tool is 'hexdiff', which displayes the hexadecimal 
-and ASCII data side by side.
+Another excellent tool is 'hexdiff', which displayes the hexadecimal and ASCII data side by side. To use it, execute:
+
+	hexdiff file1 file2
 
 PADTEST.SH: OPTIONAL AUTOMATED PADDING TEST
 -------------------------------------------
 
-If you modify your encoder and decoder to accept an optional
-fourth argument of '1' to mean "no transposition" (see below), the
-script test.sh with the option -p will test your padding code by 
-performing the same kind of automated tests as performed by test.sh. 
-That is, padtest.sh will "pad" all inputs with all block sizes and 
-compare your results against those in padded/ and, of course, 
-whether the unpadded versions match the originals.
+If you modify your encoder and decoder to accept an optional fourth argument of '1' to mean "no transposition" (see below), the script test.sh with the option -p will test your padding code by performing the same kind of automated tests as performed by test.sh. That is, padtest.sh will "pad" all inputs with all block sizes and compare your results against those in padded/ and, of course, whether the unpadded versions match the originals.
 
-These tests will NOT be graded, but testing your padding code before
-you test padding and transposition together may make your development
-and debugging process easier. It certainly helped me.
+These tests will NOT be graded, but testing your padding code before you test padding and transposition together may make your development and debugging process easier. It certainly helped me.
 
-To use "padding only" mode, your encoder and decoder MUST be able to 
-accept a fourth argument with value '1' to disable transposition. So, 
-running:
+To use "padding only" mode, your encoder and decoder MUST be able to  accept a fourth argument with value '1' to disable transposition. So, running:
 
-./encoder 4 input output 1
+	./encoder 4 input output 1
 
-... would, using a blocksize of 16, pad the input and write it into
-the file output -- WITHOUT transposing it. Similarly, the command:
+... would, using a blocksize of 16, pad the input and write it into the file output -- WITHOUT transposing it. Similarly, the command:
 
-./decoder 4 output decoded 1
+	./decoder 4 output decoded 1
 
-... would, also using a blocksize of 16, remove the padding from the
-file output and write the unpadded data to the file decoded -- with no
-transposition. The switch value MUST be 1, and your encoder and
-decoder must ALSO work *without* this optional value (or the graded
-test.sh will not function properly).
+... would, also using a blocksize of 16, remove the padding from the file output and write the unpadded data to the file decoded -- with no transposition. The switch value MUST be 1, and your encoder and decoder must ALSO work *without* this optional value (or the graded test.sh will not function properly).
 
 Successes and failures are counted and results are printed at the end.
 
