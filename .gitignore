@@ -1,0 +1,8 @@
+*~
+*.o
+*.swp
+encoder
+decoder
+log/*
+ENCODED/*
+DECODED/*
