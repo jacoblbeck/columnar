@@ -9,6 +9,8 @@ scripts.  'test'.sh' performs encoding/decoding for each input and
 grid size combination and 'padtest.sh' tests padding only enciphering
 (no transposition) for compatible encoders and decoders (see below).
 
+The lab manual for this exercise is at: https://docs.google.com/a/d.umn.edu/document/d/1EgddLiiNqvcsQPaAgbw-SBjkXdiiNFqBIzbv8KUMHLw/edit?usp=sharing
+
 The scripts test.sh and padtest.sh use the following directories:
 
 Contents:
