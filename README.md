@@ -13,14 +13,14 @@ The lab manual for this exercise is at: https://docs.google.com/a/d.umn.edu/docu
 
 The scripts test.sh and padtest.sh use the following directories:
 
-Contents:
-	input/		-- sample inputs
-	correct/	-- correctly encoded inputs with dims 1-10
-	padded/		-- correctly padded inputs with dims 1-10
-	ENCODED/	-- YOUR encoder's output files are put here
-	DECODED/	-- YOUR decoder's output files are put here
-	log/		-- program stdin and stderr from your encoder/decoder
-	test.sh		-- runs full tests
+Contents:  
+	input/		-- sample inputs  
+	correct/	-- correctly encoded inputs with dims 1-10  
+	padded/		-- correctly padded inputs with dims 1-10  
+	ENCODED/	-- YOUR encoder's output files are put here  
+	DECODED/	-- YOUR decoder's output files are put here  
+	log/		-- program stdin and stderr from your encoder/decoder  
+	test.sh		-- runs full tests  
 
 INSTRUCTIONS FOR TEST.SH
 ------------------------
