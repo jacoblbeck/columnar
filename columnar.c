@@ -12,7 +12,7 @@
 
 #ifndef DEBUG
 	#define DEBUG 0
-#endif 
+#endif
 
 #define ENCODE 0
 #define DECODE 1
@@ -25,7 +25,7 @@
 int print_buffer(char *buf, unsigned int bytes) {
 	/* takes in a pointer to a buffer and prints out as many
 	 * bytes as specified */
-	
+
 	for(int i = 0; i < bytes; i++) {
 		printf("%c",(char) buf);
 	}
@@ -39,8 +39,8 @@ int transpose_buffer(char *out, char *in, unsigned int dim) {
 	 * from in to out
 	 * using box of size dim*dim
 	 * since it's a square, enciphering and deciphering is the same
-	 */ 
-	int temp; 
+	 */
+	int temp;
 	int out_index = 0;
 	for(int i = 0; i < dim ; i++) {
 		temp = i;
@@ -57,7 +57,7 @@ int transpose_buffer(char *out, char *in, unsigned int dim) {
 
 }
 
-int dump_buffer(char *buffer, unsigned int bufsize, 
+int dump_buffer(char *buffer, unsigned int bufsize,
 				unsigned int bytes, char *output) {
 
 	/* prints a buffer one character at a time to a file using %c
@@ -67,22 +67,22 @@ int dump_buffer(char *buffer, unsigned int bufsize,
 	 *  bytes -- number of bytes from buffer to print
 	 *  output -- path to the file to open and output to
 	 */
-	
+
 	/* open the output or quit on error */
 	FILE *OUTPUT;
 	if ((OUTPUT = fopen(output, "a+")) == NULL ) {
 		printf("Probelm opening output file '%s'; errno %dn", output, errno);
 		exit(1);
-	} 
+	}
 	/* print 'bytes' bytes from buffer to output file one char at a time */
 	for(int i = 0; i < bytes; i++) {
-		fprintf(OUTPUT,"%c",(char)buffer[i]);
-	} 
+		fprintf(OUTPUT,"%c",buffer[i]);
+	}
 	/* optional: wipe buffer using memset */
-	memset(buffer,0,bufsize); 
+	memset(buffer,0,bufsize);
 	/* close output file */
-	fclose(OUTPUT); 
-	
+	fclose(OUTPUT);
+
 	return bytes;
 
 }
@@ -102,38 +102,33 @@ int pad_buffer(char *buffer, unsigned int bufsize, unsigned int rbuf_index) {
 	int padded = 0;
 
 	/* code goes here */
-	if(bufsize == 1 ) {
-		buffer[0] = 'X';
+	unsigned int size = bufsize - rbuf_index;
+	if(size == 1) {
+		buffer[rbuf_index] = 'X';
+		padded++;
+		return padded;
 	}
-	else {
-		if(rbuf_index == 0 ) {
-			buffer[0] = 'X';
-			padded++;
-			for ( int i = 1; i < bufsize; i++ ) {
-				buffer[i] = 'Y';
-				padded++;
-			}
-		}
-		else 	{
-			buffer[rbuf_index] = 'X';
-			padded++;
-			for( int i = rbuf_index + 1; i < bufsize; i++) {
-				buffer[i] = 'Y';
-				padded++;
-			}
-		}
+
+	buffer[rbuf_index] = 'X';
+	padded++;
+	rbuf_index++;
+
+	while(rbuf_index < bufsize) {
+		buffer[rbuf_index] = 'Y';
+		rbuf_index++;
+		padded++;
 	}
 	return padded;
 
 }
-	
+
 int unpad_buffer(char *buffer, unsigned int bufsize) {
 
 	/* unpads a buffer of a given size
 	 *  buffer -- buffer containing padded data
 	 *  bufsize -- size of 'buffer'
 	 */
-	unsigned int index = bufsize - 1; 
+	unsigned int index = bufsize - 1;
 	int unpadded = 0;
 
 	/* code goes here */
@@ -146,11 +141,11 @@ int unpad_buffer(char *buffer, unsigned int bufsize) {
 		buffer[index] = '\0';
 		unpadded++;
 	}
-	
+
 	return unpadded;
 
 }
-	
+
 int main(int argc, char *argv[]) {
 
 	int i = 0; /* iterator we'll reuse */
@@ -214,12 +209,12 @@ int main(int argc, char *argv[]) {
 	fclose(OUTPUT);	/* file is reopened and reclosed for in dump_buffer() */
 
 
-	/* loop through the input file, reading into a buffer and 
+	/* loop through the input file, reading into a buffer and
 	 * processing the buffer when 1) the buffer is full or
 	 * 2) the file has ended (or in the case of decoding, when
 	 * the last block is being processed.
 	 */
-	
+
 	int rbuf_index = 0; /* index into the read buffer */
 	int symbol; /* we will read each input byte into 'symbol' */
 
@@ -237,45 +232,53 @@ int main(int argc, char *argv[]) {
 			read_buf[rbuf_index] = symbol;
 			rbuf_index++;
 			bytesleft--;
-	
+
 		}
 
-		if(rbuf_index == 0) {
+			if(rbuf_index == bufsize) {
+			transpose_buffer(write_buf,read_buf,dim);
+			dump_buffer(write_buf,bufsize,bufsize,output);
 
-//			transpose_buffer(write_buf,read_buf,dim);
-//			dump_buffer(write_buf,bufsize,bufsize,output);
-			pad_buffer(read_buf,bufsize, rbuf_index);
+			pad_buffer(read_buf,bufsize, 0);
 
 			transpose_buffer(write_buf,read_buf,dim);
-			dump_buffer(write_buf,bufsize,bufsize,output);	
+			dump_buffer(write_buf,bufsize,bufsize,output);
 		}
 		else {
-			pad_buffer(read_buf,bufsize, rbuf_index); 
+			pad_buffer(read_buf,bufsize, rbuf_index);
 			transpose_buffer(write_buf,read_buf,dim);
 			dump_buffer(write_buf,bufsize,bufsize,output);
 		}
 
-		fclose(INPUT);
+
 	}
 	if(MODE == DECODE) {
-		for(int i = 0; i < filesize; i++){
-			fread(&symbol,1,1,INPUT);
-			if(rbuf_index == bufsize){
-				transpose_buffer(write_buf,read_buf,dim);
-				dump_buffer(write_buf, bufsize,bufsize,output);
+		int return_size;
+		for(int i = 0; i < filesize; i++) {
+			fread(&symbol, 1, 1, INPUT);
+			if(rbuf_index == bufsize) {
+				transpose_buffer(write_buf, read_buf, dim);
+				dump_buffer(write_buf, bufsize, bufsize, output);
 				rbuf_index = 0;
 			}
 			read_buf[rbuf_index] = symbol;
 			rbuf_index++;
 			bytesleft--;
-	
 		}
-			transpose_buffer(write_buf,read_buf,dim);
-			unpad_buffer(read_buf,bufsize); 
-			dump_buffer(write_buf,bufsize,bufsize,output);
+		if(i > (filesize - bufsize)) {
+			return_size = unpad_buffer(write_buf, bufsize);
+		}
+		int size = bufsize - return_size;
+
+		if(rbuf_index > 0)
+		{
+			transpose_buffer(write_buf, read_buf, dim);
+			return_size = unpad_buffer(write_buf, bufsize);
+			dump_buffer(write_buf, bufsize, bufsize - return_size, output);
+		}
 
 	}
+
+	fclose(INPUT);
 return 0;
 }
-
-
