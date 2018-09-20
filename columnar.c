@@ -58,7 +58,7 @@ int transpose_buffer(char *out, char *in, unsigned int dim) {
 }
 
 int dump_buffer(char *buffer, unsigned int bufsize,
-				unsigned int bytes, char *output) {
+				unsigned int bytes, FILE *OUTPUT) {
 
 	/* prints a buffer one character at a time to a file using %c
 	 * takes in:
@@ -68,20 +68,12 @@ int dump_buffer(char *buffer, unsigned int bufsize,
 	 *  output -- path to the file to open and output to
 	 */
 
-	/* open the output or quit on error */
-	FILE *OUTPUT;
-	if ((OUTPUT = fopen(output, "a+")) == NULL ) {
-		printf("Probelm opening output file '%s'; errno %dn", output, errno);
-		exit(1);
-	}
 	/* print 'bytes' bytes from buffer to output file one char at a time */
 	for(int i = 0; i < bytes; i++) {
 		fprintf(OUTPUT,"%c",buffer[i]);
 	}
 	/* optional: wipe buffer using memset */
 	memset(buffer,0,bufsize);
-	/* close output file */
-	fclose(OUTPUT);
 
 	return bytes;
 
@@ -202,11 +194,11 @@ int main(int argc, char *argv[]) {
 	/* truncate output file if it exists */
 
 	FILE *OUTPUT;
-   	if ((OUTPUT = fopen(output, "w+")) == NULL) {
+   	if ((OUTPUT = fopen(output, "a+")) == NULL) {
 		printf("Problem truncating output file '%s'; errno: %d\n", output, errno);
 		return 1;
 	}
-	fclose(OUTPUT);	/* file is reopened and reclosed for in dump_buffer() */
+	/* file is reopened and reclosed for in dump_buffer() */
 
 
 	/* loop through the input file, reading into a buffer and
@@ -214,6 +206,8 @@ int main(int argc, char *argv[]) {
 	 * 2) the file has ended (or in the case of decoding, when
 	 * the last block is being processed.
 	 */
+	 /* open the output or quit on error */
+
 
 	int rbuf_index = 0; /* index into the read buffer */
 	int symbol; /* we will read each input byte into 'symbol' */
@@ -226,7 +220,7 @@ int main(int argc, char *argv[]) {
 			fread(&symbol,1,1,INPUT);
 			if(rbuf_index == bufsize){
 				transpose_buffer(write_buf,read_buf,dim);
-				dump_buffer(write_buf, bufsize,bufsize,output);
+				dump_buffer(write_buf, bufsize,bufsize,OUTPUT);
 				rbuf_index = 0;
 			}
 			read_buf[rbuf_index] = symbol;
@@ -237,17 +231,17 @@ int main(int argc, char *argv[]) {
 
 			if(rbuf_index == bufsize) {
 			transpose_buffer(write_buf,read_buf,dim);
-			dump_buffer(write_buf,bufsize,bufsize,output);
+			dump_buffer(write_buf,bufsize,bufsize,OUTPUT);
 
 			pad_buffer(read_buf,bufsize, 0);
 
 			transpose_buffer(write_buf,read_buf,dim);
-			dump_buffer(write_buf,bufsize,bufsize,output);
+			dump_buffer(write_buf,bufsize,bufsize,OUTPUT);
 		}
 		else {
 			pad_buffer(read_buf,bufsize, rbuf_index);
 			transpose_buffer(write_buf,read_buf,dim);
-			dump_buffer(write_buf,bufsize,bufsize,output);
+			dump_buffer(write_buf,bufsize,bufsize,OUTPUT);
 		}
 
 
@@ -258,7 +252,7 @@ int main(int argc, char *argv[]) {
 			fread(&symbol, 1, 1, INPUT);
 			if(rbuf_index == bufsize) {
 				transpose_buffer(write_buf, read_buf, dim);
-				dump_buffer(write_buf, bufsize, bufsize, output);
+				dump_buffer(write_buf, bufsize, bufsize, OUTPUT);
 				rbuf_index = 0;
 			}
 			read_buf[rbuf_index] = symbol;
@@ -274,11 +268,12 @@ int main(int argc, char *argv[]) {
 		{
 			transpose_buffer(write_buf, read_buf, dim);
 			return_size = unpad_buffer(write_buf, bufsize);
-			dump_buffer(write_buf, bufsize, bufsize - return_size, output);
+			dump_buffer(write_buf, bufsize, bufsize - return_size, OUTPUT);
 		}
 
 	}
 
 	fclose(INPUT);
+	fclose(OUTPUT);
 return 0;
 }
