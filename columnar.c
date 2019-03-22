@@ -259,17 +259,9 @@ int main(int argc, char *argv[]) {
 			rbuf_index++;
 			bytesleft--;
 		}
-		if(i > (filesize - bufsize)) {
-			return_size = unpad_buffer(write_buf, bufsize);
-		}
-		int size = bufsize - return_size;
-
-		if(rbuf_index > 0)
-		{
 			transpose_buffer(write_buf, read_buf, dim);
 			return_size = unpad_buffer(write_buf, bufsize);
 			dump_buffer(write_buf, bufsize, bufsize - return_size, OUTPUT);
-		}
 
 	}
 
